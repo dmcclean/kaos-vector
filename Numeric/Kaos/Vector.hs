@@ -6,6 +6,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Numeric.Kaos.Vector
@@ -16,8 +17,9 @@ import Control.Applicative
 import Data.Functor.Identity
 import GHC.Generics
 import Linear.Vector
+import Data.Matrix
 import Text.LaTeX
-import Text.LaTeX.Base.Class (fromLaTeX)
+import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX)
 import Text.LaTeX.Packages.AMSMath
 
 class Canonical f where
@@ -43,6 +45,9 @@ data Metavariable = Metavariable { basic :: String, pretty :: LaTeX, independent
 
 metavariable :: String -> Metavariable
 metavariable n = Metavariable { basic = n, pretty = fromString n, independent = False}
+
+metavariable' :: String -> LaTeX -> Metavariable
+metavariable' n l = Metavariable { basic = n, pretty = l, independent = False }
 
 independentMetavariable :: String -> Metavariable
 independentMetavariable n = Metavariable { basic = n, pretty = fromString n, independent = True}
@@ -87,6 +92,7 @@ data NotationalConvention = NotationalConvention
                             indexedStyle :: LaTeX -> LaTeX -> LaTeX,
                             derivativeStyle :: Bool -> Int -> LaTeX -> LaTeX -> LaTeX,
                             measurementStyle :: LaTeX -> LaTeX,
+                            matrixStyle :: forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l,
                             independentVariable :: Metavariable,
                             stateVector :: Metavariable,
                             outputVector :: Metavariable,
@@ -109,10 +115,11 @@ wikipediaNotation = NotationalConvention
                                         True -> dottedDerivative
                                         False -> derivative,
                     measurementStyle = (^: "*"),
+                    matrixStyle = bmatrix,
                     independentVariable = independentMetavariable "t",
-                    stateVector = metavariable "x",
-                    outputVector = metavariable "y",
-                    inputVector = metavariable "u",
+                    stateVector = metavariable' "x" (mathbf "x"),
+                    outputVector = metavariable' "y" (mathbf "y"),
+                    inputVector = metavariable' "u" (mathbf "u"),
                     stateTransitionMatrix = metavariable "A",
                     inputMatrix = metavariable "B",
                     outputMatrix = metavariable "C",

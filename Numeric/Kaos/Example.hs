@@ -15,7 +15,7 @@ exampleDoc =
  <> usepackage [] amsmath
  <> title "Example control system"
  <> author "J. Douglas McClean"
- <> document (maketitle <> "First, let's look at " <> someEqn <> " then " <> someMatrix)
+ <> document (maketitle <> "First, let's look at " <> someEqn <> " then " <> someMatrix <> "." <> eqn wikipediaNotation)
 
 someEqn :: LaTeX
 someEqn = math $ (theta !: "x")
@@ -25,3 +25,10 @@ someMatrix = math $ vmatrix Nothing m
   where
   	m :: Matrix LaTeX
   	m = fromList 5 1 [signum "abc", "123", derivative 1 theta "t", derivative 2 theta "t", "y + 2"]
+
+eqn :: NotationalConvention -> LaTeX
+eqn c = equation $ texy x <> "=" <> xMat
+  where
+    x = stateVector c
+    xMat = matrixStyle c Nothing xMat'
+    xMat' = fromList 5 1 ["x", derivativeStyle c True 1 "x" "t", theta, derivativeStyle c True 1 theta "t", "E"]
