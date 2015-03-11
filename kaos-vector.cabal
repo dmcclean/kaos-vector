@@ -19,7 +19,8 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Numeric.Kaos.Vector,
                        Numeric.Kaos.Example,
-                       Numeric.Kaos.UnitVectors
+                       Numeric.Kaos.UnitVectors,
+                       Numeric.Kaos.Notation
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8,

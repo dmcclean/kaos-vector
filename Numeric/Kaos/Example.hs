@@ -7,7 +7,7 @@ where
 import Text.LaTeX
 import Text.LaTeX.Packages.AMSMath
 import Data.Matrix
-import Numeric.Kaos.Vector
+import Numeric.Kaos.Notation
 
 exampleDoc :: LaTeX
 exampleDoc =
