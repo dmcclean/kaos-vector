@@ -19,7 +19,7 @@ import GHC.Generics
 import Linear.Vector
 import Data.Matrix
 import Text.LaTeX
-import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX)
+import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX, comm0)
 import Text.LaTeX.Packages.AMSMath
 
 class Canonical f where
@@ -85,6 +85,12 @@ derivative 1 x y = fromLaTeX $ ("d" <> x) / ("d" <> y)
 derivative n x y = fromLaTeX $ ("d" ** n' <> x) / (("d" <> y) ** n')
   where
     n' = texy n
+
+samples :: LaTeX -> LaTeX -> LaTeX
+samples var dist = var <> (comm0 "sim") <> dist
+
+normalDistribution :: LaTeX -> LaTeX -> LaTeX
+normalDistribution mean var = mathcal "N" <> autoParens (mean <> "," <> var)
 
 data NotationalConvention = NotationalConvention
                           {
