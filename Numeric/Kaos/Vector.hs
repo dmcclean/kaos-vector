@@ -15,12 +15,12 @@ import GHC.Generics
 import Linear.Vector
 import Text.LaTeX
 
-class Canonical a where
-	quality :: a -> Double
+class Canonical f where
+	quality :: (Floating a) => f a -> a
 	quality = snd . normalize'
-	normalize :: a -> a
+	normalize :: (Floating a) => f a -> f a
 	normalize = fst . normalize'
-	normalize' :: a -> (a, Double)
+	normalize' :: (Floating a) => f a -> (f a, a)
 	normalize' x = (normalize x, quality x)
 	{-# MINIMAL (quality, normalize) | normalize' #-}
 
@@ -37,7 +37,7 @@ data EmptyVector (f :: * -> *) (a :: *) = EmptyVector { } -- this is a record co
 	deriving (Eq, Functor, Generic)
 
 instance Vector EmptyVector where
-	data MonomorphicVector EmptyVector a = EmptyVector'
+	data MonomorphicVector EmptyVector a = EmptyVector' {}
 		deriving (Eq, Functor, Generic)
 	toMono = const EmptyVector'
 	fromMono = const EmptyVector

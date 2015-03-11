@@ -17,13 +17,16 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Numeric.Kaos.Vector
+  exposed-modules:     Numeric.Kaos.Vector,
+                       Numeric.Kaos.Example,
+                       Numeric.Kaos.UnitVectors
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8,
                        HaTeX >= 3.16,
                        keys >= 3.10,
                        linear >= 1.17,
+                       matrix,
                        transformers
   -- hs-source-dirs:      
   default-language:    Haskell2010
