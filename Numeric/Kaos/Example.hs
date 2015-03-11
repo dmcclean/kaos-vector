@@ -7,6 +7,7 @@ where
 import Text.LaTeX
 import Text.LaTeX.Packages.AMSMath
 import Data.Matrix
+import Numeric.Kaos.Vector
 
 exampleDoc :: LaTeX
 exampleDoc =
@@ -20,7 +21,7 @@ someEqn :: LaTeX
 someEqn = math $ (theta !: "x")
 
 someMatrix :: LaTeX
-someMatrix = vmatrix Nothing m
+someMatrix = math $ vmatrix Nothing m
   where
   	m :: Matrix LaTeX
-  	m = fromList 4 1 ["abc", "123", theta, "y + 2"]
+  	m = fromList 5 1 [signum "abc", "123", derivative 1 theta "t", derivative 2 theta "t", "y + 2"]
