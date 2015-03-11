@@ -92,6 +92,7 @@ data NotationalConvention = NotationalConvention
                             indexedStyle :: LaTeX -> LaTeX -> LaTeX,
                             derivativeStyle :: Bool -> Int -> LaTeX -> LaTeX -> LaTeX,
                             measurementStyle :: LaTeX -> LaTeX,
+                            transposeStyle :: LaTeX -> LaTeX,
                             matrixStyle :: forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l,
                             independentVariable :: Metavariable,
                             stateVector :: Metavariable,
@@ -115,6 +116,7 @@ wikipediaNotation = NotationalConvention
                                         True -> dottedDerivative
                                         False -> derivative,
                     measurementStyle = (^: "*"),
+                    transposeStyle = (^: mathrm "T"),
                     matrixStyle = bmatrix,
                     independentVariable = independentMetavariable "t",
                     stateVector = metavariable' "x" (mathbf "x"),
