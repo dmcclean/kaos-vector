@@ -15,42 +15,8 @@ import Text.LaTeX
 import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX, comm0)
 import Text.LaTeX.Packages.AMSMath
 
--- Metavariable names
-data Metavariable = Metavariable { basic :: String, pretty :: LaTeX, independent :: Bool }
-                  | Estimate Metavariable
-                  | Indexed Metavariable Metavariable
-                  | Derivative Int Metavariable Metavariable
-                  | Measurement Metavariable
-
-metavariable :: String -> Metavariable
-metavariable n = Metavariable { basic = n, pretty = fromString n, independent = False}
-
-metavariable' :: String -> LaTeX -> Metavariable
-metavariable' n l = Metavariable { basic = n, pretty = l, independent = False }
-
-independentMetavariable :: String -> Metavariable
-independentMetavariable n = Metavariable { basic = n, pretty = fromString n, independent = True}
-
-instance Texy Metavariable where
-  texy = fromLaTeX . formatMetavariable wikipediaNotation
-
-formatMetavariable :: NotationalConvention -> Metavariable -> LaTeX
-formatMetavariable _ (Metavariable {pretty}) = pretty
-formatMetavariable c (Estimate x) = estimateStyle c x'
-  where
-    x' = formatMetavariable c x
-formatMetavariable c (Indexed sub x) = indexedStyle c sub' x'
-  where
-    sub' = formatMetavariable c sub
-    x' = formatMetavariable c x
-formatMetavariable c (Derivative n x y) = derivativeStyle c ind n x' y'
-  where
-    ind = independent y
-    x' = formatMetavariable c x
-    y' = formatMetavariable c y
-formatMetavariable c (Measurement x) = measurementStyle c x'
-  where
-    x' = formatMetavariable c x
+variable :: LaTeX -> MathExpr
+variable = return
 
 dottedDerivative :: Int -> LaTeX -> LaTeX -> LaTeX
 dottedDerivative 1 x _ = dot x
@@ -69,11 +35,6 @@ type MathExpr = Reader NotationalConvention LaTeX
 
 formatMathExpr :: NotationalConvention -> MathExpr -> LaTeX
 formatMathExpr = flip runReader
-
-var :: Metavariable -> MathExpr
-var x = do
-          c <- ask
-          return $ formatMetavariable c x
 
 estimate :: MathExpr -> MathExpr
 estimate = lift1 estimateStyle

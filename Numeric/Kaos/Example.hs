@@ -36,14 +36,14 @@ runEquation = equation . formatMathExpr wikipediaNotation
 eqn2 :: MathExpr
 eqn2 = hasDistribution w dist
   where
-    w = var $ metavariable' "w" (mathbf "w")
-    s = var $ metavariable' "sigma" sigma
+    w = variable (mathbf "w")
+    s = variable sigma
     variance = s ** 2
     dist = normalDistribution 0 variance
 
 eqn3 :: MathExpr
 eqn3 = expectation (w * wt) `equals` q
   where
-    q = var $ metavariable "Q"
-    w = var $ metavariable' "w" (mathbf "w")
+    q = variable "Q"
+    w = variable (mathbf "w")
     wt = transpose w
