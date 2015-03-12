@@ -108,11 +108,6 @@ normalDistribution = lift2 normalDistributionStyle
 equals :: MathExpr -> MathExpr -> MathExpr
 equals = lift2 (\_ x y -> x <> "=" <> y)
 
---product :: [MathExpr] -> MathExpr
---product xs = do
-               --xs' <- sequence xs
-               --return $ mconcat xs'
-
 instance Num MathExpr where
   (+) = lift2 $ const (+)
   (-) = lift2 $ const (-)
