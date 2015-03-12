@@ -66,7 +66,7 @@ samples :: LaTeX -> LaTeX -> LaTeX
 samples var dist = var <> (comm0 "sim") <> dist
 
 normalDistribution :: LaTeX -> LaTeX -> LaTeX
-normalDistribution mean var = mathcal "N" <> autoParens (mean <> "," <> var)
+normalDistribution mean var = mathcal "N" <> "(" <> mean <> "," <> var <> ")"
 
 data NotationalConvention = NotationalConvention
                           {
@@ -75,6 +75,8 @@ data NotationalConvention = NotationalConvention
                             derivativeStyle :: Bool -> Int -> LaTeX -> LaTeX -> LaTeX,
                             measurementStyle :: LaTeX -> LaTeX,
                             transposeStyle :: LaTeX -> LaTeX,
+                            matrixInverseStyle :: LaTeX -> LaTeX,
+                            functionInverseStyle :: LaTeX -> LaTeX,
                             matrixStyle :: forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l,
                             independentVariable :: Metavariable,
                             stateVector :: Metavariable,
@@ -99,6 +101,8 @@ wikipediaNotation = NotationalConvention
                                         False -> derivative,
                     measurementStyle = (^: "*"),
                     transposeStyle = (^: mathrm "T"),
+                    matrixInverseStyle = (^: (-1)),
+                    functionInverseStyle = (^: (-1)),
                     matrixStyle = bmatrix,
                     independentVariable = independentMetavariable "t",
                     stateVector = metavariable' "x" (mathbf "x"),
