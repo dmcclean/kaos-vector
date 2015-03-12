@@ -4,6 +4,7 @@ module Numeric.Kaos.Example
 
 where
 
+import Data.Matrix hiding (matrix, transpose)
 import Text.LaTeX
 import Text.LaTeX.Packages.AMSMath
 import Numeric.Kaos.Notation
@@ -14,24 +15,17 @@ exampleDoc =
  <> usepackage [] amsmath
  <> title "Example control system"
  <> author "J. Douglas McClean"
- <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn2 <> runEquation eqn3)
-
-{-
-someMatrix :: LaTeX
-someMatrix = math $ vmatrix Nothing m
-  where
-    m :: Matrix LaTeX
-    m = fromList 5 1 [signum "abc", "123", derivative 1 theta "t", derivative 2 theta "t", "y + 2"]
-
-eqn :: NotationalConvention -> LaTeX
-eqn c = equation $ "x" <> "=" <> xMat
-  where
-    xMat = matrixStyle c Nothing xMat'
-    xMat' = fromList 5 1 ["x", derivativeStyle c True 1 "x" "t", theta, derivativeStyle c True 1 theta "t", "E"]
--}
+ <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn1 <> runEquation eqn2 <> runEquation eqn3)
 
 runEquation :: MathExpr -> LaTeX
 runEquation = equation . formatMathExpr wikipediaNotation
+
+eqn1 :: MathExpr
+eqn1 = x `equals` xMat
+  where
+    x = variable "x"
+    xMat = matrix xMat'
+    xMat' = fromList 4 1 [variable "x", derivative True 1 (variable "x") (variable "t"), variable theta, variable "E"]
 
 eqn2 :: MathExpr
 eqn2 = hasDistribution w dist

@@ -11,6 +11,7 @@ where
 
 import Control.Monad.Trans.Reader
 import Data.Matrix
+import Data.Traversable
 import Text.LaTeX
 import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX, comm0)
 import Text.LaTeX.Packages.AMSMath
@@ -66,6 +67,12 @@ hasDistribution = lift2 hasDistributionStyle
 normalDistribution :: MathExpr -> MathExpr -> MathExpr
 normalDistribution = lift2 normalDistributionStyle
 
+matrix :: Matrix MathExpr -> MathExpr
+matrix xs = do
+              c <- ask
+              xs' <- sequenceA xs
+              return $ matrixStyle c Nothing xs'
+
 equals :: MathExpr -> MathExpr -> MathExpr
 equals = lift2 (\_ x y -> x <> "=" <> y)
 
@@ -115,6 +122,8 @@ lift2 style x y = do
                     y' <- y
                     return $ style c x' y'
 
+type MatrixFormatFunction = forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l
+
 data NotationalConvention = NotationalConvention
                           {
                             estimateStyle :: LaTeX -> LaTeX,
@@ -127,7 +136,7 @@ data NotationalConvention = NotationalConvention
                             expectationStyle :: LaTeX -> LaTeX,
                             hasDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
                             normalDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
-                            matrixStyle :: forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l
+                            matrixStyle :: MatrixFormatFunction
                           }
 
 wikipediaNotation :: NotationalConvention
