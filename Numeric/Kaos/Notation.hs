@@ -68,6 +68,9 @@ samples var dist = var <> (comm0 "sim") <> dist
 normalDistribution :: LaTeX -> LaTeX -> LaTeX
 normalDistribution mean var = mathcal "N" <> "(" <> mean <> "," <> var <> ")"
 
+expectation :: LaTeX -> LaTeX
+expectation x = operatorname (mathrm "E") <> "[" <> x <> "]"
+
 data NotationalConvention = NotationalConvention
                           {
                             estimateStyle :: LaTeX -> LaTeX,

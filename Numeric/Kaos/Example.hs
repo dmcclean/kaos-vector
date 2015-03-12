@@ -15,7 +15,7 @@ exampleDoc =
  <> usepackage [] amsmath
  <> title "Example control system"
  <> author "J. Douglas McClean"
- <> document (maketitle <> "First, let's look at " <> someEqn <> " then " <> someMatrix <> "." <> eqn wikipediaNotation <> eqn2 wikipediaNotation)
+ <> document (maketitle <> "First, let's look at " <> someEqn <> " then " <> someMatrix <> "." <> eqn wikipediaNotation <> eqn2 wikipediaNotation <> eqn3 wikipediaNotation)
 
 someEqn :: LaTeX
 someEqn = math $ (theta !: "x")
@@ -34,8 +34,14 @@ eqn c = equation $ texy x <> "=" <> xMat
     xMat' = fromList 5 1 ["x", derivativeStyle c True 1 "x" "t", theta, derivativeStyle c True 1 theta "t", "E"]
 
 eqn2 :: NotationalConvention -> LaTeX
-eqn2 c = equation $ samples (texy x) dist
+eqn2 c = equation $ samples w dist
   where
-    x = stateVector c
+    w = mathbf "w"
     var = sigma ** 2
     dist = normalDistribution 0 var
+
+eqn3 :: NotationalConvention -> LaTeX
+eqn3 c = equation $ expectation (w <> wt) <> "=" <> "Q"
+  where
+    w = mathbf "w"
+    wt = transposeStyle c w
