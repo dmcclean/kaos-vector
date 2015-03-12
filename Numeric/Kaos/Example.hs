@@ -6,7 +6,6 @@ where
 
 import Text.LaTeX
 import Text.LaTeX.Packages.AMSMath
-import Data.Matrix
 import Numeric.Kaos.Notation
 
 exampleDoc :: LaTeX
@@ -15,11 +14,9 @@ exampleDoc =
  <> usepackage [] amsmath
  <> title "Example control system"
  <> author "J. Douglas McClean"
- <> document (maketitle <> "First, let's look at " <> someEqn <> " then " <> someMatrix <> "." <> eqn wikipediaNotation <> eqn2 wikipediaNotation <> eqn3 wikipediaNotation)
+ <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn2 <> runEquation eqn3)
 
-someEqn :: LaTeX
-someEqn = math $ (theta !: "x")
-
+{-
 someMatrix :: LaTeX
 someMatrix = math $ vmatrix Nothing m
   where
@@ -27,21 +24,26 @@ someMatrix = math $ vmatrix Nothing m
     m = fromList 5 1 [signum "abc", "123", derivative 1 theta "t", derivative 2 theta "t", "y + 2"]
 
 eqn :: NotationalConvention -> LaTeX
-eqn c = equation $ texy x <> "=" <> xMat
+eqn c = equation $ "x" <> "=" <> xMat
   where
-    x = stateVector c
     xMat = matrixStyle c Nothing xMat'
     xMat' = fromList 5 1 ["x", derivativeStyle c True 1 "x" "t", theta, derivativeStyle c True 1 theta "t", "E"]
+-}
 
-eqn2 :: NotationalConvention -> LaTeX
-eqn2 c = equation $ samples w dist
-  where
-    w = mathbf "w"
-    var = sigma ** 2
-    dist = normalDistribution 0 var
+runEquation :: MathExpr -> LaTeX
+runEquation = equation . formatMathExpr wikipediaNotation
 
-eqn3 :: NotationalConvention -> LaTeX
-eqn3 c = equation $ expectation (w <> wt) <> "=" <> "Q"
+eqn2 :: MathExpr
+eqn2 = hasDistribution w dist
   where
-    w = mathbf "w"
-    wt = transposeStyle c w
+    w = var $ metavariable' "w" (mathbf "w")
+    s = var $ metavariable' "sigma" sigma
+    variance = s ** 2
+    dist = normalDistribution 0 variance
+
+eqn3 :: MathExpr
+eqn3 = expectation (w * wt) `equals` q
+  where
+    q = var $ metavariable "Q"
+    w = var $ metavariable' "w" (mathbf "w")
+    wt = transpose w
