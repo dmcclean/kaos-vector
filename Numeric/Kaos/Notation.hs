@@ -13,7 +13,7 @@ import Control.Monad.Trans.Reader
 import Data.Matrix
 import Data.Traversable
 import Text.LaTeX
-import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX, comm0)
+import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX, comm0, commS)
 import Text.LaTeX.Packages.AMSMath
 
 variable :: LaTeX -> MathExpr
@@ -73,6 +73,9 @@ matrix xs = do
               xs' <- sequenceA xs
               return $ matrixStyle c Nothing xs'
 
+jacobianAt :: MathExpr -> MathExpr -> MathExpr -> MathExpr
+jacobianAt = lift3 jacobianAtStyle
+
 equals :: MathExpr -> MathExpr -> MathExpr
 equals = lift2 (\_ x y -> x <> "=" <> y)
 
@@ -122,6 +125,14 @@ lift2 style x y = do
                     y' <- y
                     return $ style c x' y'
 
+lift3 :: (NotationalConvention -> LaTeX -> LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr -> MathExpr
+lift3 style x y z = do
+                      c <- ask
+                      x' <- x
+                      y' <- y
+                      z' <- z
+                      return $ style c x' y' z'
+
 type MatrixFormatFunction = forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l
 
 data NotationalConvention = NotationalConvention
@@ -136,7 +147,8 @@ data NotationalConvention = NotationalConvention
                             expectationStyle :: LaTeX -> LaTeX,
                             hasDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
                             normalDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
-                            matrixStyle :: MatrixFormatFunction
+                            matrixStyle :: MatrixFormatFunction,
+                            jacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX
                           }
 
 wikipediaNotation :: NotationalConvention
@@ -154,8 +166,17 @@ wikipediaNotation = NotationalConvention
                     expectationStyle = \x -> operatorname (mathrm "E") <> "[" <> x <> "]",
                     hasDistributionStyle = \v dist -> v <> (comm0 "sim") <> dist,
                     normalDistributionStyle = \mean v -> mathcal "N" <> "(" <> mean <> "," <> v <> ")",
-                    matrixStyle = bmatrix
+                    matrixStyle = bmatrix,
+                    jacobianAtStyle = defaultJacobianAtStyle
                   }
+
+defaultJacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX
+defaultJacobianAtStyle f x x' = left <> "." <> ((partial <> f) / (partial <> x)) <> right <> vert !: x'
+  where
+    left = commS "left"
+    partial = comm0 "partial"
+    right = commS "right"
+    vert = commS "vert"
 
 {-- metavariables for systems, belongs elsewhere
                     independentVariable = independentMetavariable "t",

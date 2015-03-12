@@ -15,7 +15,7 @@ exampleDoc =
  <> usepackage [] amsmath
  <> title "Example control system"
  <> author "J. Douglas McClean"
- <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn1 <> runEquation eqn2 <> runEquation eqn3)
+ <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn1 <> runEquation eqn2 <> runEquation eqn3 <> runEquation eqn4)
 
 runEquation :: MathExpr -> LaTeX
 runEquation = equation . formatMathExpr wikipediaNotation
@@ -41,3 +41,8 @@ eqn3 = expectation (w * wt) `equals` q
     q = variable "Q"
     w = variable (mathbf "w")
     wt = transpose w
+
+eqn4 :: MathExpr
+eqn4 = jacobianAt (variable "f") x (x `equals` estimate x)
+  where
+    x = variable "x"
