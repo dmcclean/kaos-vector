@@ -77,40 +77,40 @@ jacobianAt :: MathExpr -> MathExpr -> MathExpr -> MathExpr
 jacobianAt = lift3 jacobianAtStyle
 
 equals :: MathExpr -> MathExpr -> MathExpr
-equals = lift2 (\_ x y -> x <> "=" <> y)
+equals = lift2' (\x y -> x <> "=" <> y)
 
 instance Num MathExpr where
-  (+) = lift2 $ const (+)
-  (-) = lift2 $ const (-)
-  (*) = lift2 $ const (*)
-  negate = lift1 $ const negate
+  (+) = lift2' (+)
+  (-) = lift2' (-)
+  (*) = lift2' (*)
+  negate = lift1' negate
   fromInteger = return . fromInteger
-  abs = lift1 $const abs
-  signum = lift1 $ const signum
+  abs = lift1' abs
+  signum = lift1' signum
 
 instance Fractional MathExpr where
-  (/) = lift2 $ const (/)
+  (/) = lift2' (/)
   fromRational = return . fromRational
 
 instance Floating MathExpr where
   pi = return pi_
-  exp = lift1 $ const exp
-  sqrt = lift1 $ const sqrt
-  log = lift1 $ const log
-  (**) = lift2 $ const (**)
-  logBase = lift2 $ const logBase
-  sin = lift1 $ const sin
-  tan = lift1 $ const tan
-  cos = lift1 $ const cos
-  asin = lift1 $ const asin
-  atan = lift1 $ const atan
-  acos = lift1 $ const acos
-  sinh = lift1 $ const sinh
-  tanh = lift1 $ const tanh
-  cosh = lift1 $ const cosh
-  asinh = lift1 $ const asinh
-  atanh = lift1 $ const atanh
-  acosh = lift1 $ const acosh
+  exp = lift1' exp
+  sqrt = lift1' sqrt
+  log = lift1' log
+  (**) = lift2' (**)
+  logBase = lift2' logBase
+  sin = lift1' sin
+  tan = lift1' tan
+  cos = lift1' cos
+  asin = lift1' asin
+  atan = lift1' atan
+  acos = lift1' acos
+  sinh = lift1' sinh
+  tanh = lift1' tanh
+  cosh = lift1' cosh
+  asinh = lift1' asinh
+  atanh = lift1' atanh
+  acosh = lift1' acosh
 
 lift1 :: (NotationalConvention -> LaTeX -> LaTeX) -> MathExpr -> MathExpr
 lift1 style x = do
@@ -118,12 +118,18 @@ lift1 style x = do
                   x' <- x
                   return $ style c x'
 
+lift1' :: (LaTeX -> LaTeX) -> MathExpr -> MathExpr
+lift1' = lift1 . const
+
 lift2 :: (NotationalConvention -> LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr
 lift2 style x y = do
                     c <- ask
                     x' <- x
                     y' <- y
                     return $ style c x' y'
+
+lift2' :: (LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr
+lift2' = lift2 . const
 
 lift3 :: (NotationalConvention -> LaTeX -> LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr -> MathExpr
 lift3 style x y z = do
