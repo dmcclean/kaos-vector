@@ -76,6 +76,15 @@ matrix xs = do
 jacobianAt :: MathExpr -> MathExpr -> MathExpr -> MathExpr
 jacobianAt = lift3 jacobianAtStyle
 
+complexUnit :: MathExpr
+complexUnit = lift0 complexUnitStyle
+
+realPart :: MathExpr -> MathExpr
+realPart = lift1 realPartStyle
+
+imaginaryPart :: MathExpr -> MathExpr
+imaginaryPart = lift1 imaginaryPartStyle
+
 equals :: MathExpr -> MathExpr -> MathExpr
 equals = lift2' (\x y -> x <> "=" <> y)
 
@@ -111,6 +120,9 @@ instance Floating MathExpr where
   asinh = lift1' asinh
   atanh = lift1' atanh
   acosh = lift1' acosh
+
+lift0 :: (NotationalConvention -> LaTeX) -> MathExpr
+lift0 style = ask >>= (return . style)
 
 lift1 :: (NotationalConvention -> LaTeX -> LaTeX) -> MathExpr -> MathExpr
 lift1 style x = do
@@ -154,7 +166,10 @@ data NotationalConvention = NotationalConvention
                             hasDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
                             normalDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
                             matrixStyle :: MatrixFormatFunction,
-                            jacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX
+                            jacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX,
+                            complexUnitStyle :: LaTeX,
+                            realPartStyle :: LaTeX -> LaTeX,
+                            imaginaryPartStyle :: LaTeX -> LaTeX
                           }
 
 wikipediaNotation :: NotationalConvention
@@ -173,7 +188,10 @@ wikipediaNotation = NotationalConvention
                     hasDistributionStyle = \v dist -> v <> (comm0 "sim") <> dist,
                     normalDistributionStyle = \mean v -> mathcal "N" <> "(" <> mean <> "," <> v <> ")",
                     matrixStyle = bmatrix,
-                    jacobianAtStyle = defaultJacobianAtStyle
+                    jacobianAtStyle = defaultJacobianAtStyle,
+                    complexUnitStyle = "i", -- todo: imath
+                    realPartStyle = \x -> operatorname "Re" <> "(" <> x <> ")",
+                    imaginaryPartStyle = \x -> operatorname "Im" <> "(" <> x <> ")"
                   }
 
 defaultJacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX
