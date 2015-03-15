@@ -6,7 +6,15 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Numeric.Kaos.Systems
-
+(
+  Model,
+  Dynamics,
+  SamplingInfo(..),
+  FunctionModel(..),
+  MeasurementModel, StateTransitionModel,
+  discretize,
+  linearizeAt
+)
 where
 
 import Data.Matrix
@@ -30,3 +38,9 @@ type family MeasurementModel where
 type family StateTransitionModel where
   StateTransitionModel (Model Continuous t x u y) = FunctionModel x u x -- should be x' where x' has dimensions of x / t
   StateTransitionModel (Model Discrete t x u y) = FunctionModel x u x
+
+discretize :: t -> Model Continuous t x u y -> Model Discrete t x u y
+discretize = undefined
+
+linearizeAt :: Model d t x u y -> x -> u -> Model d t x u y
+linearizeAt = undefined
