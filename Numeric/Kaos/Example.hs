@@ -4,6 +4,7 @@ module Numeric.Kaos.Example
 
 where
 
+import Data.Default
 import Data.Matrix hiding (matrix, transpose)
 import Text.LaTeX
 import Text.LaTeX.Packages.AMSMath
@@ -18,7 +19,7 @@ exampleDoc =
  <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn1 <> runEquation eqn2 <> runEquation eqn3 <> runEquation eqn4)
 
 runEquation :: MathExpr -> LaTeX
-runEquation = equation . formatMathExpr wikipediaNotation
+runEquation = equation . formatMathExpr def
 
 eqn1 :: MathExpr
 eqn1 = x `equals` xMat

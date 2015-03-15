@@ -17,13 +17,14 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Numeric.Kaos.Vector,
-                       Numeric.Kaos.Example,
+  exposed-modules:     Numeric.Kaos.Example,
+                       Numeric.Kaos.Vector,
                        Numeric.Kaos.UnitVectors,
                        Numeric.Kaos.Notation
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8,
+                       data-default,
                        HaTeX >= 3.16,
                        keys >= 3.10,
                        linear >= 1.17,

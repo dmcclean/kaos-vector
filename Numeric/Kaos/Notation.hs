@@ -6,11 +6,25 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 
 module Numeric.Kaos.Notation
-
+(
+  MathExpr,
+  NotationalConvention(..),
+  formatMathExpr,
+  variable, equals,
+  indexed,
+  estimate, measurement,
+  derivative, jacobianAt,
+  expectation,
+  matrix,
+  transpose, functionInverse, matrixInverse,
+  complexUnit, realPart, imaginaryPart,
+  hasDistribution, normalDistribution
+)
 where
 
 import Control.Monad.Trans.Reader
-import Data.Matrix
+import Data.Default
+import Data.Matrix hiding (matrix, transpose)
 import Data.Traversable
 import Text.LaTeX
 import Text.LaTeX.Base.Class (LaTeXC, fromLaTeX, comm0, commS)
@@ -172,8 +186,8 @@ data NotationalConvention = NotationalConvention
                             imaginaryPartStyle :: LaTeX -> LaTeX
                           }
 
-wikipediaNotation :: NotationalConvention
-wikipediaNotation = NotationalConvention
+instance Default NotationalConvention where
+  def = NotationalConvention
                   {
                     estimateStyle = hat,
                     indexedStyle = flip (!:),
