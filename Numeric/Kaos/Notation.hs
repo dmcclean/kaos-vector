@@ -22,6 +22,7 @@ module Numeric.Kaos.Notation
 )
 where
 
+import Control.Applicative
 import Control.Monad.Trans.Reader
 import Data.Default
 import Data.Matrix hiding (matrix, transpose)
@@ -141,8 +142,7 @@ lift0 style = ask >>= (return . style)
 lift1 :: (NotationalConvention -> LaTeX -> LaTeX) -> MathExpr -> MathExpr
 lift1 style x = do
                   c <- ask
-                  x' <- x
-                  return $ style c x'
+                  style c <$> x
 
 lift1' :: (LaTeX -> LaTeX) -> MathExpr -> MathExpr
 lift1' = lift1 . const
@@ -150,9 +150,7 @@ lift1' = lift1 . const
 lift2 :: (NotationalConvention -> LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr
 lift2 style x y = do
                     c <- ask
-                    x' <- x
-                    y' <- y
-                    return $ style c x' y'
+                    style c <$> x <*> y
 
 lift2' :: (LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr
 lift2' = lift2 . const
@@ -160,53 +158,50 @@ lift2' = lift2 . const
 lift3 :: (NotationalConvention -> LaTeX -> LaTeX -> LaTeX -> LaTeX) -> MathExpr -> MathExpr -> MathExpr -> MathExpr
 lift3 style x y z = do
                       c <- ask
-                      x' <- x
-                      y' <- y
-                      z' <- z
-                      return $ style c x' y' z'
+                      style c <$> x <*> y <*> z
 
 type MatrixFormatFunction = forall a l.(Texy a, LaTeXC l) => Maybe HPos -> Matrix a -> l
 
 data NotationalConvention = NotationalConvention
-                          {
-                            estimateStyle :: LaTeX -> LaTeX,
-                            indexedStyle :: LaTeX -> LaTeX -> LaTeX,
-                            derivativeStyle :: Bool -> Int -> LaTeX -> LaTeX -> LaTeX,
-                            measurementStyle :: LaTeX -> LaTeX,
-                            transposeStyle :: LaTeX -> LaTeX,
-                            matrixInverseStyle :: LaTeX -> LaTeX,
-                            functionInverseStyle :: LaTeX -> LaTeX,
-                            expectationStyle :: LaTeX -> LaTeX,
-                            hasDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
-                            normalDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
-                            matrixStyle :: MatrixFormatFunction,
-                            jacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX,
-                            complexUnitStyle :: LaTeX,
-                            realPartStyle :: LaTeX -> LaTeX,
-                            imaginaryPartStyle :: LaTeX -> LaTeX
-                          }
+                            {
+                              estimateStyle :: LaTeX -> LaTeX,
+                              indexedStyle :: LaTeX -> LaTeX -> LaTeX,
+                              derivativeStyle :: Bool -> Int -> LaTeX -> LaTeX -> LaTeX,
+                              measurementStyle :: LaTeX -> LaTeX,
+                              transposeStyle :: LaTeX -> LaTeX,
+                              matrixInverseStyle :: LaTeX -> LaTeX,
+                              functionInverseStyle :: LaTeX -> LaTeX,
+                              expectationStyle :: LaTeX -> LaTeX,
+                              hasDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
+                              normalDistributionStyle :: LaTeX -> LaTeX -> LaTeX,
+                              matrixStyle :: MatrixFormatFunction,
+                              jacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX,
+                              complexUnitStyle :: LaTeX,
+                              realPartStyle :: LaTeX -> LaTeX,
+                              imaginaryPartStyle :: LaTeX -> LaTeX
+                            }
 
 instance Default NotationalConvention where
   def = NotationalConvention
-                  {
-                    estimateStyle = hat,
-                    indexedStyle = flip (!:),
-                    derivativeStyle = \case 
-                                        True -> dottedDerivative
-                                        False -> defaultDerivative,
-                    measurementStyle = (^: "*"),
-                    transposeStyle = (^: mathrm "T"),
-                    matrixInverseStyle = (^: (-1)),
-                    functionInverseStyle = (^: (-1)),
-                    expectationStyle = \x -> operatorname (mathrm "E") <> "[" <> x <> "]",
-                    hasDistributionStyle = \v dist -> v <> (comm0 "sim") <> dist,
-                    normalDistributionStyle = \mean v -> mathcal "N" <> "(" <> mean <> "," <> v <> ")",
-                    matrixStyle = bmatrix,
-                    jacobianAtStyle = defaultJacobianAtStyle,
-                    complexUnitStyle = "i", -- todo: imath
-                    realPartStyle = \x -> operatorname "Re" <> "(" <> x <> ")",
-                    imaginaryPartStyle = \x -> operatorname "Im" <> "(" <> x <> ")"
-                  }
+        {
+          estimateStyle = hat,
+          indexedStyle = flip (!:),
+          derivativeStyle = \case 
+                              True -> dottedDerivative
+                              False -> defaultDerivative,
+          measurementStyle = (^: "*"),
+          transposeStyle = (^: mathrm "T"),
+          matrixInverseStyle = (^: (-1)),
+          functionInverseStyle = (^: (-1)),
+          expectationStyle = \x -> operatorname (mathrm "E") <> "[" <> x <> "]",
+          hasDistributionStyle = \v dist -> v <> (comm0 "sim") <> dist,
+          normalDistributionStyle = \mean v -> mathcal "N" <> "(" <> mean <> "," <> v <> ")",
+          matrixStyle = bmatrix,
+          jacobianAtStyle = defaultJacobianAtStyle,
+          complexUnitStyle = "i", -- todo: imath
+          realPartStyle = \x -> operatorname "Re" <> "(" <> x <> ")",
+          imaginaryPartStyle = \x -> operatorname "Im" <> "(" <> x <> ")"
+        }
 
 defaultJacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX
 defaultJacobianAtStyle f x x' = left <> "." <> ((partial <> f) / (partial <> x)) <> right <> vert !: x'
@@ -215,18 +210,3 @@ defaultJacobianAtStyle f x x' = left <> "." <> ((partial <> f) / (partial <> x))
     partial = comm0 "partial"
     right = commS "right"
     vert = commS "vert"
-
-{-- metavariables for systems, belongs elsewhere
-                    independentVariable = independentMetavariable "t",
-                    stateVector = metavariable' "x" (mathbf "x"),
-                    outputVector = metavariable' "y" (mathbf "y"),
-                    inputVector = metavariable' "u" (mathbf "u"),
-                    stateTransitionMatrix = metavariable "A",
-                    inputMatrix = metavariable "B",
-                    outputMatrix = metavariable "C",
-                    feedthroughMatrix = metavariable "D",
-                    stateTransitionFunction = metavariable "f",
-                    outputFunction = metavariable "h",
-                    discreteStateIndex = metavariable "k"
-                  }
---}
