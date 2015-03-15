@@ -25,8 +25,8 @@ data FunctionModel x u y where
   NonLinear :: (forall a.Num a => a->a) -> FunctionModel x u y
 
 type family MeasurementModel where
-	MeasurementModel (Model d t x u y) = FunctionModel x u y
+  MeasurementModel (Model d t x u y) = FunctionModel x u y
 
 type family StateTransitionModel where
-	StateTransitionModel (Model Continuous t x u y) = FunctionModel x u x -- should be x' where x' has dimensions of x / t
-	StateTransitionModel (Model Discrete t x u y) = FunctionModel x u x
+  StateTransitionModel (Model Continuous t x u y) = FunctionModel x u x -- should be x' where x' has dimensions of x / t
+  StateTransitionModel (Model Discrete t x u y) = FunctionModel x u x
