@@ -1,5 +1,7 @@
+{-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE KindSignatures #-}
@@ -10,7 +12,9 @@ module Numeric.Kaos.Vector
 where
 
 import Control.Applicative
+import Data.Foldable
 import Data.Functor.Identity
+import Data.Traversable
 import GHC.Generics
 import Linear.Vector
 
@@ -23,7 +27,7 @@ class Canonical f where
   normalize' x = (normalize x, quality x)
   {-# MINIMAL (quality, normalize) | normalize' #-}
 
-class (Functor (MonomorphicVector vec)) => Vector (vec :: (* -> *) -> * -> *) where
+class (Traversable (MonomorphicVector vec)) => Vector (vec :: (* -> *) -> * -> *) where
   data MonomorphicVector vec :: * -> *
   toMono :: vec Identity a -> MonomorphicVector vec a
   fromMono :: MonomorphicVector vec a -> vec Identity a
@@ -34,7 +38,7 @@ data EmptyVector (f :: * -> *) (a :: *) = EmptyVector { } -- this is a record co
 
 instance Vector EmptyVector where
   data MonomorphicVector EmptyVector a = EmptyVector' {}
-    deriving (Eq, Functor, Generic)
+    deriving (Eq, Functor, Foldable, Traversable, Generic)
   toMono = const EmptyVector'
   fromMono = const EmptyVector
 
