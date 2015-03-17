@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -29,6 +30,7 @@ class Canonical f where
 
 class (Traversable (MonomorphicVector vec)) => Vector (vec :: (* -> *) -> * -> *) where
   data MonomorphicVector vec :: * -> *
+  type AtomicDimensions vec :: [*]
   toMono :: vec Identity a -> MonomorphicVector vec a
   fromMono :: MonomorphicVector vec a -> vec Identity a
 
@@ -36,9 +38,14 @@ class (Traversable (MonomorphicVector vec)) => Vector (vec :: (* -> *) -> * -> *
 data EmptyVector (f :: * -> *) (a :: *) = EmptyVector { } -- this is a record consructor for consistency with signal vectors that do have fields, to help TH if we end up needing to reify
   deriving (Eq, Functor, Generic)
 
+instance Canonical (EmptyVector a) where
+  quality = const 1
+  normalize = id
+
 instance Vector EmptyVector where
   data MonomorphicVector EmptyVector a = EmptyVector' {}
     deriving (Eq, Functor, Foldable, Traversable, Generic)
+  type AtomicDimensions EmptyVector = '[]
   toMono = const EmptyVector'
   fromMono = const EmptyVector
 
