@@ -16,7 +16,7 @@ exampleDoc =
  <> usepackage [] amsmath
  <> title "Example control system"
  <> author "J. Douglas McClean"
- <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn1 <> runEquation eqn2 <> runEquation eqn3 <> runEquation eqn4)
+ <> document (maketitle <> "First, let's look at some equations." <> runEquation eqn1 <> runEquation eqn2 <> runEquation eqn3 <> runEquation eqn4 <> runEquation eqn5)
 
 runEquation :: MathExpr -> LaTeX
 runEquation = equation . formatMathExpr def
@@ -47,3 +47,6 @@ eqn4 :: MathExpr
 eqn4 = jacobianAt (variable "f") x (x `equals` estimate x)
   where
     x = variable "x"
+
+eqn5 :: MathExpr
+eqn5 = function (variable "f") [argumentPlaceholder, argumentPlaceholder, argumentPlaceholder]

@@ -17,6 +17,7 @@ module Numeric.Kaos.Notation
   expectation,
   matrix,
   transpose, functionInverse, matrixInverse,
+  function, argumentPlaceholder,
   complexUnit, realPart, imaginaryPart,
   hasDistribution, normalDistribution
 )
@@ -25,6 +26,7 @@ where
 import Control.Applicative
 import Control.Monad.Trans.Reader
 import Data.Default
+import Data.List (intersperse)
 import Data.Matrix hiding (matrix, transpose)
 import Data.Traversable
 import Text.LaTeX
@@ -99,6 +101,16 @@ realPart = lift1 realPartStyle
 
 imaginaryPart :: MathExpr -> MathExpr
 imaginaryPart = lift1 imaginaryPartStyle
+
+function :: MathExpr -> [MathExpr] -> MathExpr
+function f xs = do
+                  c <- ask
+                  f' <- f
+                  xs' <- sequenceA xs
+                  return $ functionStyle c f' xs'
+
+argumentPlaceholder :: MathExpr
+argumentPlaceholder = lift0 argumentPlaceholderStyle
 
 equals :: MathExpr -> MathExpr -> MathExpr
 equals = lift2' (\x y -> x <> "=" <> y)
@@ -178,7 +190,9 @@ data NotationalConvention = NotationalConvention
                               jacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX,
                               complexUnitStyle :: LaTeX,
                               realPartStyle :: LaTeX -> LaTeX,
-                              imaginaryPartStyle :: LaTeX -> LaTeX
+                              imaginaryPartStyle :: LaTeX -> LaTeX,
+                              functionStyle :: LaTeX -> [LaTeX] -> LaTeX,
+                              argumentPlaceholderStyle :: LaTeX
                             }
 
 instance Default NotationalConvention where
@@ -198,9 +212,11 @@ instance Default NotationalConvention where
           normalDistributionStyle = \mean v -> mathcal "N" <> "(" <> mean <> "," <> v <> ")",
           matrixStyle = bmatrix,
           jacobianAtStyle = defaultJacobianAtStyle,
-          complexUnitStyle = "i", -- todo: imath
+          complexUnitStyle = "i",
           realPartStyle = \x -> operatorname "Re" <> "(" <> x <> ")",
-          imaginaryPartStyle = \x -> operatorname "Im" <> "(" <> x <> ")"
+          imaginaryPartStyle = \x -> operatorname "Im" <> "(" <> x <> ")",
+          functionStyle = \f xs -> f <> "(" <> (mconcat . intersperse ", " $ xs) <> ")",
+          argumentPlaceholderStyle = comm0 "cdot"
         }
 
 defaultJacobianAtStyle :: LaTeX -> LaTeX -> LaTeX -> LaTeX
